@@ -364,6 +364,172 @@ public class KitchenGameManager : MonoBehaviour
     }
 }
 ```
+<hr>
+### <h3>DeliveryManager.cs</h3>
 
+```csharp
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DeliveryManager : MonoBehaviour
+{
+    // Events for recipe spawning, completion, success, and failure
+    public event EventHandler OnRecipeSpawned;
+    public event EventHandler OnRecipeCompleted;
+    public event EventHandler OnRecipeSuccess;
+    public event EventHandler OnRecipeFailed;
+    
+    // Singleton instance of DeliveryManager
+    public static DeliveryManager Instance { get; private set; }
+
+    // Serialized field for recipe list scriptable object
+    [SerializeField] private RecipeListSO recipeListSO;
+
+    // List to hold waiting recipes
+    private List<RecipeSO> waitingRecipeSOList;
+
+    // Timer variables for spawning recipes
+    private float spawnRecipeTimer;
+    private float spawnRecipeTimerMax = 4f;
+    
+    // Maximum number of waiting recipes
+    private int waitingRecipesMax = 4;
+    
+    // Count of successfully delivered recipes
+    private int successfulRecipesAmount;
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        Instance = this;
+        waitingRecipeSOList = new List<RecipeSO>();
+    }
+    
+    // Called once per frame
+    private void Update()
+    {
+        // Decrement spawn timer
+        spawnRecipeTimer -= Time.deltaTime;
+        
+        // Spawn a new recipe if conditions are met
+        if (spawnRecipeTimer <= 0f)
+        {
+            spawnRecipeTimer = spawnRecipeTimerMax;
+
+            if (KitchenGameManager.Instance.IsGamePlaying() && waitingRecipeSOList.Count < waitingRecipesMax)
+            {
+                // Randomly select a recipe from the list
+                RecipeSO waitingRecipeSO = recipeListSO.recipeSOList[UnityEngine.Random.Range(0, recipeListSO.recipeSOList.Count)];
+                
+                // Add the selected recipe to the waiting list
+                waitingRecipeSOList.Add(waitingRecipeSO);
+
+                // Invoke event for spawned recipe
+                OnRecipeSpawned?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    // Method to deliver a recipe
+    public void DeliverRecipe(PlateKitchenObject plateKitchenObject)
+    {
+        for (int i = 0; i < waitingRecipeSOList.Count; i++)
+        {
+            RecipeSO waitingRecipeSO = waitingRecipeSOList[i];
+
+            if (waitingRecipeSO.kitchenObjectSOList.Count == plateKitchenObject.GetKitchenObjectSOList().Count)
+            {
+                // Check if plate contents match the recipe
+                bool plateContentsMatchesRecipe = true;
+                foreach (KitchenObjectSO recipeKitchenObjectSO in waitingRecipeSO.kitchenObjectSOList)
+                {
+                    bool ingredientFound = false;
+                    foreach (KitchenObjectSO plateKitchenObjectSO in plateKitchenObject.GetKitchenObjectSOList())
+                    {
+                        if (plateKitchenObjectSO == recipeKitchenObjectSO)
+                        {
+                            ingredientFound = true;
+                            break;
+                        }
+                    }
+                    if (!ingredientFound)
+                    {
+                        plateContentsMatchesRecipe = false;
+                    }
+                }
+
+                if (plateContentsMatchesRecipe)
+                {
+                    // Player delivered the correct recipe
+                    successfulRecipesAmount++;
+
+                    // Remove completed recipe from waiting list
+                    waitingRecipeSOList.RemoveAt(i);
+                    
+                    // Invoke events for recipe completion and success
+                    OnRecipeCompleted?.Invoke(this, EventArgs.Empty);
+                    OnRecipeSuccess?.Invoke(this, EventArgs.Empty);
+                    
+                    return;
+                }
+            }
+        }
+
+        // No matches found, recipe delivery failed
+        OnRecipeFailed?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Getter for waiting recipe list
+    public List<RecipeSO> GetWaitingRecipeSOList()
+    {
+        return waitingRecipeSOList;
+    }
+
+    // Getter for successful recipe count
+    public int GetSuccessfulRecipesAmount()
+    {
+        return successfulRecipesAmount;
+    }
+}
+```
+<hr>
+### <h3>KitchenObject.cs</h3>
+
+```csharp
+
+```
+<hr>
+### <h3>Player.cs</h3>
+
+```csharp
+
+```
+<hr>
+### <h3>Player.cs</h3>
+
+```csharp
+
+```
+<hr>
+### <h3>Player.cs</h3>
+
+```csharp
+
+```
+<hr>
+### <h3>Player.cs</h3>
+
+```csharp
+
+```
+
+### <h3>Player.cs</h3>
+
+```csharp
+
+```
 
 
