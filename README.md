@@ -77,7 +77,7 @@
   <kbd><img src="https://i.imgur.com/mWqgJOu.png" alt="Level 6"></kbd>
 </p>
 
-<p>In the game the player is required to pick up ingredients from their respective stations and that they can be used in making the recipes be asked for. In the pictures above we have the player picking up bread and cheese.</p>
+<p>In the game the player is required to pick up ingredients from their respective stations and that they can be used in making the recipes be asked for. The player must look at the station and press the interact button (by default the "E" key) to pick up the ingredient of that respective station. In the pictures above we have the player picking up bread and cheese.</p>
 
 <h3>Cutting Tomatoes and Cabbages</h3>
 
@@ -97,7 +97,7 @@
   <kbd><img src="https://i.imgur.com/KlLBuhB.png" alt="Level 9"></kbd>
 </p>
 
-<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+<p>In the game the player is required to cut ingredients at cutting stations so that they can be used for completing recipes. The player must look at the station and press the interact alternate button (by default the "F" key) until the ingredient is fully cut. In the pictures above we have the player cutting tomatoes and cabbages.</p>
 
 <h3>Cooking Patty</h3>
 
@@ -117,7 +117,7 @@
   <kbd><img src="https://i.imgur.com/ZvnY68b.png" alt="Level 7"></kbd>
 </p>
 
-<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+<p>The player has to cook a meat patty in order to make all types of burges. To do that the player gets an uncooked patty from the patty station, and lays it on the stove. By waiting for a bit, the patty gets cooked. If the player waits for too long, the patty will burn and cannot be used on making recipes anymore. A burnt patty is useless, so the player may want to dispose of it by using the trash counter.</p>
 
 <h3>Using Trash</h3>
 
@@ -125,7 +125,7 @@
   <kbd><img src="https://i.imgur.com/bxjQ9Zm.png" alt="Level 7"></kbd>
 </p>
 
-<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+<p>By holding an item and interacting with trash counter, the player will destroy that item and thus will have their hands free to pick up any other item they desire.</p>
 
 <h3>Delivery Success</h3>
 
@@ -133,4 +133,4 @@
   <kbd><img src="https://i.imgur.com/6ws986f.png" alt="Level 7"></kbd>
 </p>
 
-<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+<p>By following the recipe correctly and completing one of the dishes in the list, the player cannot now deliver the recipe. This is where the delivery counter comes in. By interacting with the delivery counter while holding a correct recipe, they player will deliver that dish and increase the amount of recipes delivered by one.</p>
