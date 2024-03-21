@@ -57,8 +57,7 @@
   <kbd><img src="https://i.imgur.com/ng4mlm0.png" alt="Level 3"></kbd>
 </p>
 
-<p>In this level, we introduce the concept of crouching, with the idea that by using the crouching mechanism, the player can go past obstacles they would not be able to if they were standing up. By using that mechanic correctly, the player gets to move to the next level.</p>
-
+<p>In the options menu we can change things about the game such as the volume of sound effects, music, and keybinds for how the player moves and interacts with objects in the game.</p>
 
 <h3>Game Over</h3>
 
@@ -66,7 +65,7 @@
   <kbd><img src="https://i.imgur.com/JAcQuYD.png" alt="Level 4"></kbd>
 </p>
 
-<p>In this level, we introduce the trampoline object, distinguished with a bright green color. By touching object with this green color, the player will be propelled upwards, thus being able to make higher jumps.</p>
+<p>When the timer ends, the Game Over screen is shown. On this screen the player can see how many recipes were delivered by the player, and gives the options for the player to click on the "Restart" or "Quit" buttons. "Restart" will play the game from the beginning and "Quit" will simply close the game.</p>
 
 <h3>Picking Up Ingredients</h3>
 
