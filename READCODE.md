@@ -1001,6 +1001,7 @@ public class GameInput : MonoBehaviour
 ```
 </details>
 <hr>
+
 ### <h3>Player.cs</h3>
 
 <details>
@@ -1011,6 +1012,7 @@ public class GameInput : MonoBehaviour
 ```
 </details>
 <hr>
+
 ### <h3>Player.cs</h3>
 
 <details>
