@@ -1,4 +1,44 @@
-<h2>Code Breakdown</h2>
+<h1>Code Breakdown</h1>
+
+<p>The way I have decide to structure this explanation is by only analyzing the bulkier parts of the game, files that were complex enough to warrant an extended explanation. For better organization and understanding, I have separated the code files in three categories: function, UI, and counters.</p>
+
+<h2>Function</h2>
+
+<p>Player.cs:
+
+Manages the player character's movement and interactions within the kitchen environment.
+Handles player input, movement, and interaction events.
+Communicates with various kitchen objects such as counters and plates.
+
+KitchenGameManager.cs:
+
+Controls the overall game state, including waiting to start, countdown to start, gameplay, and game over states.
+Manages timers for game events, such as the countdown to start and gameplay duration.
+Handles player input for starting the game and pausing/unpausing.
+
+DeliveryManager.cs:
+
+Manages the delivery of recipes within the game.
+Spawns recipes at intervals during gameplay.
+Tracks successful and failed recipe deliveries.
+
+KitchenObject.cs:
+
+Represents interactive objects within the kitchen environment.
+Handles the placement and removal of kitchen objects on counters and plates.
+Provides functionality for object destruction and interaction with other game elements.
+
+SoundManager.cs:
+
+Controls the playback of audio cues and sound effects throughout the game.
+Responds to various game events such as successful recipe deliveries and object interactions to trigger appropriate sound effects.
+
+GameInput.cs:
+
+Manages player input bindings and interaction actions.
+Allows rebinding of input actions such as movement, interaction, and pausing.
+Handles input events and triggers corresponding actions in the game.
+Each of these scripts plays a crucial role in different aspects of the game, such as player control, game state management, object interactions, audio feedback, and input handling. Together, they create an immersive and interactive kitchen environment where players can engage in various activities such as cooking, delivering recipes, and managing kitchen operations. By working together, these scripts provide a seamless and enjoyable gameplay experience for the player.</p>
 
 ### <h3>Player.cs</h3>
 
@@ -499,18 +539,412 @@ public class DeliveryManager : MonoBehaviour
 ### <h3>KitchenObject.cs</h3>
 
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class KitchenObject : MonoBehaviour
+{
+    // Serialized field for the kitchen object scriptable object
+    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+
+    // Reference to the parent object implementing the IKitchenObjectParent interface
+    private IKitchenObjectParent kitchenObjectParent;
+
+    // Getter for the kitchen object scriptable object
+    public KitchenObjectSO GetKitchenObjectSO() { return kitchenObjectSO; }
+
+    // Method to set the parent object for this kitchen object
+    public void SetKitchenObjectParent(IKitchenObjectParent kitchenObjectParent)
+    {
+        // Clear previous parent's kitchen object
+        if (this.kitchenObjectParent != null)
+        {
+            this.kitchenObjectParent.ClearKitchenObject();
+        }
+        
+        // Set the new parent and associate this object with it
+        this.kitchenObjectParent = kitchenObjectParent;
+        
+        // Check if the parent already has a kitchen object, log error if true
+        if (kitchenObjectParent.HasKitchenObject())
+        {
+            Debug.LogError("IKitchenObjectParent already has a Kitchen object");
+        }
+        
+        // Set this kitchen object as the child of the parent and reset position
+        kitchenObjectParent.SetKitchenObject(this);
+        transform.parent = kitchenObjectParent.GetKitchenObjectFollowTransform();
+        transform.localPosition = Vector3.zero;
+    }
+
+    // Getter for the kitchen object parent
+    public IKitchenObjectParent GetKitchenObjectParent() { return kitchenObjectParent; }
+
+    // Method to destroy the kitchen object
+    public void DestroySelf()
+    {
+        // Clear parent's kitchen object reference and destroy the object
+        kitchenObjectParent.ClearKitchenObject();
+        Destroy(gameObject);
+    }
+
+    // Method to check if this kitchen object is a plate, and if so, return it
+    public bool TryGetPlate(out PlateKitchenObject plateKitchenObject)
+    {
+        // Check if this object is a PlateKitchenObject
+        if (this is PlateKitchenObject)
+        {
+            // Cast this object to PlateKitchenObject and return true
+            plateKitchenObject = this as PlateKitchenObject;
+            return true;
+        }
+        else
+        {
+            // Not a plate, return false and null reference
+            plateKitchenObject = null;
+            return false;
+        }
+    }
+
+    // Method to spawn a kitchen object based on a scriptable object and parent
+    public static KitchenObject SpawnKitchenObject(KitchenObjectSO kitchenObjectSO, IKitchenObjectParent kitchenObjectParent)
+    {
+        // Instantiate the kitchen object prefab
+        Transform kitchenObjectTransform = Instantiate(kitchenObjectSO.prefab);
+        
+        // Get the KitchenObject component from the instantiated prefab
+        KitchenObject kitchenObject = kitchenObjectTransform.GetComponent<KitchenObject>();
+        
+        // Set the parent for the spawned kitchen object
+        kitchenObject.SetKitchenObjectParent(kitchenObjectParent);
+        
+        // Return the spawned kitchen object
+        return kitchenObject;
+    }
+}
 
 ```
 <hr>
-### <h3>Player.cs</h3>
+### <h3>SoundManager.cs</h3>
 
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting.InputSystem;
+using UnityEngine;
+
+public class SoundManager : MonoBehaviour
+{
+    // Constant for player prefs sound effects volume key
+    private const string PLAYER_PREFS_SOUND_EFFECTS_VOLUME = "SoundEffectsVolume";
+
+    // Singleton instance of SoundManager
+    public static SoundManager Instance { get; private set; }
+
+    // ScriptableObject containing references to audio clips
+    [SerializeField] private AudioClipRefsSO audioClipRefsSO;
+
+    // Current volume level
+    private float volume = 1f;
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        Instance = this;
+
+        // Load volume level from player prefs
+        volume = PlayerPrefs.GetFloat(PLAYER_PREFS_SOUND_EFFECTS_VOLUME, 1f);
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to various game events for playing sounds
+        DeliveryManager.Instance.OnRecipeSuccess += DeliveryManager_OnRecipeSuccess;
+        DeliveryManager.Instance.OnRecipeFailed += DeliveryManager_OnRecipeFailed;
+        CuttingCounter.OnAnyCut += CuttingCounter_OnAnyCut;
+        Player.Instance.OnPickedSomething += Player_OnPickedSomething;
+        BaseCounter.OnAnyObjectPlacedHere += BaseCounter_OnAnyObjectPlacedHere;
+        TrashCounter.OnAnyObjectTrashed += TrashCounter_OnAnyObjectTrashed;
+    }
+
+    // Event handler for trash counter object trashed event
+    private void TrashCounter_OnAnyObjectTrashed(object sender, System.EventArgs e)
+    {
+        TrashCounter trashCounter = sender as TrashCounter;
+        PlaySound(audioClipRefsSO.trash, trashCounter.transform.position);
+    }
+
+    // Event handler for base counter object placed event
+    private void BaseCounter_OnAnyObjectPlacedHere(object sender, System.EventArgs e)
+    {
+        BaseCounter baseCounter = sender as BaseCounter;
+        PlaySound(audioClipRefsSO.objectDrop, baseCounter.transform.position);
+    }
+
+    // Event handler for player object picked something event
+    private void Player_OnPickedSomething(object sender, System.EventArgs e)
+    {
+        PlaySound(audioClipRefsSO.objectPickup, Player.Instance.transform.position);
+    }
+
+    // Event handler for cutting counter object cut event
+    private void CuttingCounter_OnAnyCut(object sender, System.EventArgs e)
+    {
+        CuttingCounter cuttingCounter = sender as CuttingCounter;
+        PlaySound(audioClipRefsSO.chop, cuttingCounter.transform.position);
+    }
+
+    // Event handler for delivery manager recipe failed event
+    private void DeliveryManager_OnRecipeFailed(object sender, System.EventArgs e)
+    {
+        DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
+        PlaySound(audioClipRefsSO.deliveryFail, deliveryCounter.transform.position);
+    }
+
+    // Event handler for delivery manager recipe success event
+    private void DeliveryManager_OnRecipeSuccess(object sender, System.EventArgs e)
+    {
+        DeliveryCounter deliveryCounter = DeliveryCounter.Instance;
+        PlaySound(audioClipRefsSO.deliverySuccess, deliveryCounter.transform.position);
+    }
+
+    // Method to play a random audio clip from an array at a given position
+    private void PlaySound(AudioClip[] audioClipArray, Vector3 position, float volume = 1f)
+    {
+        PlaySound(audioClipArray[Random.Range(0, audioClipArray.Length)], position, volume);
+    }
+
+    // Method to play a specific audio clip at a given position with a volume multiplier
+    private void PlaySound(AudioClip audioClip, Vector3 position, float volumeMultiplier = 1f)
+    {
+        AudioSource.PlayClipAtPoint(audioClip, position, volumeMultiplier * volume);
+    }
+
+    // Method to play footstep sound at a given position with a specific volume
+    public void PlayFootstepsSound(Vector3 position, float volume)
+    {
+        PlaySound(audioClipRefsSO.footstep, position, volume);
+    }
+
+    // Method to play the countdown sound
+    public void PlayCountdownSound()
+    {
+        PlaySound(audioClipRefsSO.warning, Vector3.zero);
+    }
+
+    // Method to play the warning sound at a given position
+    public void PlayWarningSound(Vector3 position)
+    {
+        PlaySound(audioClipRefsSO.warning, position);
+    }
+
+    // Method to change the volume level
+    public void ChangeVolume()
+    {
+        volume += .1f;
+        if (volume > 1f)
+        {
+            volume = 0f;
+        }
+
+        // Save volume level to player prefs
+        PlayerPrefs.SetFloat(PLAYER_PREFS_SOUND_EFFECTS_VOLUME, volume);
+        PlayerPrefs.Save();
+    }
+
+    // Method to get the current volume level
+    public float GetVolume()
+    {
+        return volume;
+    }
+}
 
 ```
 <hr>
-### <h3>Player.cs</h3>
+### <h3>GameInput.cs</h3>
 
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class GameInput : MonoBehaviour
+{
+    // Constant for player prefs input bindings key
+    private const string PLAYER_PREFS_BINDINGS = "InputBindings";
+
+    // Singleton instance of GameInput
+    public static GameInput Instance { get; private set; }
+
+    // Events for various input actions
+    public event EventHandler OnInteractAction;
+    public event EventHandler OnInteractAlternateAction;
+    public event EventHandler OnPauseAction;
+    public event EventHandler OnBindingRebind;
+
+    // Enum defining input bindings
+    public enum Binding
+    {
+        Move_Up,
+        Move_Down,
+        Move_Left,
+        Move_Right,
+        Interact,
+        InteractAlternate,
+        Pause,
+    }
+
+    // Player input actions reference
+    private PlayerInputActions playerInputActions;
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        Instance = this;
+        playerInputActions = new PlayerInputActions();
+
+        // Load saved binding overrides from player prefs
+        if (PlayerPrefs.HasKey(PLAYER_PREFS_BINDINGS))
+        {
+            playerInputActions.LoadBindingOverridesFromJson(PlayerPrefs.GetString(PLAYER_PREFS_BINDINGS));
+        }
+
+        // Enable player input actions
+        playerInputActions.Player.Enable();
+
+        // Assign event handlers for input actions
+        playerInputActions.Player.Interact.performed += Interact_performed;
+        playerInputActions.Player.InteractAlternate.performed += InteractAlternate_performed;
+        playerInputActions.Player.Pause.performed += Pause_performed;
+    }
+
+    // Called when the MonoBehaviour will be destroyed
+    private void OnDestroy()
+    {
+        // Remove event handlers for input actions
+        playerInputActions.Player.Interact.performed -= Interact_performed;
+        playerInputActions.Player.InteractAlternate.performed -= InteractAlternate_performed;
+        playerInputActions.Player.Pause.performed -= Pause_performed;
+
+        // Dispose player input actions
+        playerInputActions.Dispose();
+    }
+
+    // Event handler for pause action performed
+    private void Pause_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnPauseAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Event handler for alternate interact action performed
+    private void InteractAlternate_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnInteractAlternateAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Event handler for interact action performed
+    private void Interact_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj)
+    {
+        OnInteractAction?.Invoke(this, EventArgs.Empty);
+    }
+
+    // Method to get normalized movement vector
+    public Vector2 GetMovementVectorNormalized()
+    {
+        Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
+        return inputVector.normalized;
+    }
+
+    // Method to get binding text for a specific input binding
+    public string GetBindingText(Binding binding)
+    {
+        switch (binding)
+        {
+            default:
+            case Binding.Move_Up:
+                return playerInputActions.Player.Move.bindings[1].ToDisplayString();
+            case Binding.Move_Down:
+                return playerInputActions.Player.Move.bindings[2].ToDisplayString();
+            case Binding.Move_Left:
+                return playerInputActions.Player.Move.bindings[3].ToDisplayString();
+            case Binding.Move_Right:
+                return playerInputActions.Player.Move.bindings[4].ToDisplayString();
+            case Binding.Interact:
+                return playerInputActions.Player.Interact.bindings[0].ToDisplayString();
+            case Binding.InteractAlternate:
+                return playerInputActions.Player.InteractAlternate.bindings[0].ToDisplayString();
+            case Binding.Pause:
+                return playerInputActions.Player.Pause.bindings[0].ToDisplayString();
+        }
+    }
+
+    // Method to rebind a specific input binding
+    public void RebindBinding(Binding binding, Action onActionRebound)
+    {
+        // Disable player input actions during rebinding
+        playerInputActions.Player.Disable();
+        
+        // Define input action and binding index based on the input binding
+        InputAction inputAction;
+        int bindingIndex;
+        switch (binding)
+        {
+            default:
+            case Binding.Move_Up:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 1;
+                break;
+            case Binding.Move_Down:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 2;
+                break;
+            case Binding.Move_Left:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 3;
+                break;
+            case Binding.Move_Right:
+                inputAction = playerInputActions.Player.Move;
+                bindingIndex = 4;
+                break;
+            case Binding.Interact:
+                inputAction = playerInputActions.Player.Interact;
+                bindingIndex = 0;
+                break;
+            case Binding.InteractAlternate:
+                inputAction = playerInputActions.Player.InteractAlternate;
+                bindingIndex = 0;
+                break;
+            case Binding.Pause:
+                inputAction = playerInputActions.Player.Pause;
+                bindingIndex = 0;
+                break;
+        }
+
+        // Start interactive rebinding process
+        inputAction.PerformInteractiveRebinding(bindingIndex)
+            .OnComplete(callback =>
+            {
+                // Re-enable player input actions and invoke callback action
+                callback.Dispose();
+                playerInputActions.Player.Enable();
+                onActionRebound();
+
+                // Save binding overrides to player prefs
+                PlayerPrefs.SetString(PLAYER_PREFS_BINDINGS, playerInputActions.SaveBindingOverridesAsJson());
+                PlayerPrefs.Save();
+
+                // Invoke event for binding rebind
+                OnBindingRebind?.Invoke(this, EventArgs.Empty);
+            })
+            .Start();
+    }
+}
 
 ```
 <hr>
