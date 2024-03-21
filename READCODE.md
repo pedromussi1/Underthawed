@@ -44,7 +44,8 @@ Each of these scripts plays a crucial role in different aspects of the game, suc
 
 ### <h3>Player.cs</h3>
 
-<div style="overflow-y: scroll; max-height: 100px;">
+<details>
+<summary>Click to expand code</summary>
 
 ```csharp
 
@@ -253,11 +254,13 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     }
 }
 ```
-</div>
+</details>
 <hr>
 
 ### <h3>KitchenGameManager.cs</h3>
 
+<details>
+<summary>Click to expand code</summary>
 ```csharp
 using System;
 using System.Collections;
@@ -408,9 +411,13 @@ public class KitchenGameManager : MonoBehaviour
     }
 }
 ```
+
+</details>
 <hr>
 ### <h3>DeliveryManager.cs</h3>
 
+<details>
+<summary>Click to expand code</summary>
 ```csharp
 
 using System;
@@ -540,8 +547,11 @@ public class DeliveryManager : MonoBehaviour
 }
 ```
 <hr>
-### <h3>KitchenObject.cs</h3>
 
+### <h3>KitchenObject.cs</h3>
+<details>
+<summary>Click to expand code</summary>
+    
 ```csharp
 using System.Collections;
 using System.Collections.Generic;
@@ -629,6 +639,7 @@ public class KitchenObject : MonoBehaviour
 }
 
 ```
+</details>
 <hr>
 ### <h3>SoundManager.cs</h3>
 
