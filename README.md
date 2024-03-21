@@ -35,35 +35,35 @@
 
 <h2>Game Walk-through</h2>
 
-<h3>Level 1</h3>
+<h3>Main Menu</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/KRMatUC.png" alt="Level 1"></kbd>
+  <kbd><img src="https://i.imgur.com/hs2RqfV.png" alt="Level 1"></kbd>
 </p>
 
 <p>In this level, we introduce the first, most basic mechanics of the game, which are how to walk and jump. In order to move to the next level, the player must move from platforms and get to the gold coin.</p>
 
-<h3>Level 2</h3>
+<h3>Pause Menu</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/ZCM5RN7.png" alt="Level 2"></kbd>
+  <kbd><img src="https://i.imgur.com/lBjybs9.png" alt="Level 2"></kbd>
 </p>
 
 <p>In this level, we introduce the concept of sprinting, with the idea that by using the sprint mechanism, the player can move faster and thus make longer jumps. The player must master the sprinting mechanic in order to move on to the next level.</p>
 
-<h3>Level 3</h3>
+<h3>Options Menu</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/AGIusI8.png" alt="Level 3"></kbd>
+  <kbd><img src="https://i.imgur.com/ng4mlm0.png" alt="Level 3"></kbd>
 </p>
 
 <p>In this level, we introduce the concept of crouching, with the idea that by using the crouching mechanism, the player can go past obstacles they would not be able to if they were standing up. By using that mechanic correctly, the player gets to move to the next level.</p>
 
 
-<h3>Level 4</h3>
+<h3>Game Over</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/3dfoBgc.png" alt="Level 4"></kbd>
+  <kbd><img src="https://i.imgur.com/JAcQuYD.png" alt="Level 4"></kbd>
 </p>
 
 <p>In this level, we introduce the trampoline object, distinguished with a bright green color. By touching object with this green color, the player will be propelled upwards, thus being able to make higher jumps.</p>
