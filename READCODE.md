@@ -1,152 +1,369 @@
+<h2>Code Breakdown</h2>
 
-<h1 align="center">Underthawed</h1>
+### <h3>Player.cs</h3>
 
-### [YouTube Demonstration](https://www.youtube.com/watch?v=wSi-ISIEWBs)
+```csharp
 
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=wSi-ISIEWBs"><img src="https://img.youtube.com/vi/wSi-ISIEWBs/0.jpg" alt="YouTube Demonstration"></a>
-</p>
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine;
 
-### [Play the Game Here!](https://play.unity.com/mg/other/webgl-builds-397102)
+public class Player : MonoBehaviour, IKitchenObjectParent
+{
+    // Singleton instance of the Player class
+    public static Player Instance { get; private set; }
+
+    // Events for when the player interacts or changes selected counter
+    public event EventHandler OnPickedSomething;
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs : EventArgs {
+        public BaseCounter selectedCounter;
+    }
+
+    // Serialized fields accessible in the Unity Editor
+    [SerializeField] private float moveSpeed = 7f;
+    [SerializeField] private GameInput gameInput;
+    [SerializeField] private LayerMask countersLayerMask;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
+
+    // Private variables for player state and interactions
+    private bool isWalking;
+    private Vector3 lastInteractDir;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        // Ensure only one instance of Player exists
+        if (Instance != null)
+        {
+            Debug.LogError("There is more than one player instance");
+        }
+        Instance = this;
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to input events
+        gameInput.OnInteractAction += GameInput_OnInteractAction;
+        gameInput.OnInteractAlternateAction += GameInput_OnInteractAlternateAction;
+    }
+
+    // Event handler for primary interaction action
+    private void GameInput_OnInteractAction(object sender, System.EventArgs e)
+    {
+        // Check if game is playing
+        if (!KitchenGameManager.Instance.IsGamePlaying()) return;
+
+        // Perform interaction with selected counter
+        if (selectedCounter != null)
+        {
+            selectedCounter.Interact(this);
+        }
+    }
+
+    // Event handler for alternate interaction action
+    private void GameInput_OnInteractAlternateAction(object sender, EventArgs e)
+    {
+        // Check if game is playing
+        if (!KitchenGameManager.Instance.IsGamePlaying()) return;
+
+        // Perform alternate interaction with selected counter
+        if (selectedCounter != null)
+        {
+            selectedCounter.InteractAlternate(this);
+        }
+    }
+
+    // Called once per frame
+    private void Update()
+    {
+        // Handle player movement and interactions
+        HandleMovement();
+        HandleInteractions();
+    }
+
+    // Check if player is walking
+    public bool IsWalking()
+    {
+        return isWalking;
+    }
+
+    // Handle interactions with kitchen counters
+    private void HandleInteractions()
+    {
+        // Get normalized movement input
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
+
+        // Check for nearby counters for selection
+        float interactDistance = 2f;
+        if (Physics.Raycast(transform.position, lastInteractDir, out RaycastHit raycastHit, interactDistance, countersLayerMask)){
+            if (raycastHit.transform.TryGetComponent(out BaseCounter baseCounter))
+            {
+                if (baseCounter != selectedCounter){
+                    SetSelectedCounter(baseCounter);
+                }
+            }else{
+                SetSelectedCounter(null);
+            }
+        }else{
+            SetSelectedCounter(null);
+        }
+    }
+
+    // Handle player movement
+    private void HandleMovement()
+    {
+        // Get normalized movement input
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        Vector3 moveDir = new Vector3(inputVector.x, 0f, inputVector.y);
+
+        // Calculate movement distance and check for obstacles
+        float moveDistance = moveSpeed * Time.deltaTime;
+        float playerRadius = .7f;
+        float playerHeight = 2f;
+        bool canMove =!Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDir, moveDistance);
+
+        // If movement is obstructed, try moving along X or Z axis
+        if (!canMove)
+        {
+            Vector3 moveDirX = new Vector3(moveDir.x, 0, 0).normalized;
+            canMove = moveDir.x != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirX, moveDistance);
+
+            if (canMove)
+            {
+                moveDir = moveDirX;
+            }
+            else
+            {
+                Vector3 moveDirZ = new Vector3(0, 0, moveDir.z).normalized;
+                canMove = moveDir.z != 0 && !Physics.CapsuleCast(transform.position, transform.position + Vector3.up * playerHeight, playerRadius, moveDirZ, moveDistance);
+
+                if (canMove)
+                {
+                    moveDir = moveDirZ;
+                }
+            }
+        }
+
+        // Move the player if possible
+        if (canMove)
+        {
+            transform.position += moveDir * moveDistance;
+        }
+
+        // Update walking state and rotation
+        isWalking = moveDir != Vector3.zero;
+        float rotateSpeed = 10f;
+        transform.forward = Vector3.Slerp(transform.forward, moveDir, Time.deltaTime * rotateSpeed);
+    }
+
+    // Set the currently selected counter
+    private void SetSelectedCounter(BaseCounter selectedCounter)
+    {
+        this.selectedCounter = selectedCounter;
+
+        // Invoke event with the new selected counter
+        OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs
+        {
+            selectedCounter = selectedCounter
+        });
+    }
+
+    // Get the transform for holding kitchen objects
+    public Transform GetKitchenObjectFollowTransform()
+    {
+        return kitchenObjectHoldPoint;
+    }
+
+    // Set the currently held kitchen object
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        this.kitchenObject = kitchenObject;
+
+        // Invoke event when an object is picked up
+        if (kitchenObject != null)
+        {
+            OnPickedSomething?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    // Get the currently held kitchen object
+    public KitchenObject GetKitchenObject() { return kitchenObject; }
+
+    // Clear the currently held kitchen object
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+
+    // Check if the player is holding a kitchen object
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
+}
+```
+
+<hr>
+
+### <h3>KitchenGameManager.cs</h3>
+
+```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using UnityEngine;
+
+public class KitchenGameManager : MonoBehaviour
+{
+    // Singleton instance of KitchenGameManager
+    public static KitchenGameManager Instance { get; private set; }
+
+    // Events for game state changes and pausing
+    public event EventHandler OnStateChanged;
+    public event EventHandler OnGamePaused;
+    public event EventHandler OnGameUnpaused;
+
+    // Enumeration representing different game states
+    private enum State
+    {
+        WaitingToStart,
+        CountdownToStart,
+        GamePlaying,
+        GameOver,
+    }
+
+    // Current game state
+    private State state;
+
+    // Timers for countdown and game duration
+    private float countdownToStartTimer = 3f;
+    private float gamePlayingTimer;
+    private float gamePlayingTimerMax = 180; // 3 minutes
+    private bool isGamePaused = false;
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        Instance = this;
+        state = State.WaitingToStart; // Initial state
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to input events
+        GameInput.Instance.OnPauseAction += GameInput_OnPauseAction;
+        GameInput.Instance.OnInteractAction += GameInput_OnInteractAction;
+    }
+
+    // Event handler for interact action
+    private void GameInput_OnInteractAction(object sender, EventArgs e)
+    {
+        if (state == State.WaitingToStart)
+        {
+            // Transition to countdown state when interact action is triggered
+            state = State.CountdownToStart;
+            OnStateChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    // Event handler for pause action
+    private void GameInput_OnPauseAction(object sender, EventArgs e)
+    {
+        TogglePauseGame(); // Pause or unpause the game
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        // Update game state based on current state
+        switch (state)
+        {
+            case State.WaitingToStart:
+                // No action required while waiting to start
+                break;
+            case State.CountdownToStart:
+                // Countdown to start timer
+                countdownToStartTimer -= Time.deltaTime;
+                if (countdownToStartTimer < 0f)
+                {
+                    // Transition to game playing state when countdown ends
+                    state = State.GamePlaying;
+                    gamePlayingTimer = gamePlayingTimerMax; // Reset game timer
+                    OnStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+            case State.GamePlaying:
+                // Game playing timer
+                gamePlayingTimer -= Time.deltaTime;
+                if (gamePlayingTimer < 0f)
+                {
+                    // Transition to game over state when game time runs out
+                    state = State.GameOver;
+                    OnStateChanged?.Invoke(this, EventArgs.Empty);
+                }
+                break;
+            case State.GameOver:
+                // No action required when game is over
+                break;
+        }
+    }
+
+    // Check if the game is currently playing
+    public bool IsGamePlaying()
+    {
+        return state == State.GamePlaying;
+    }
+
+    // Check if countdown to start is active
+    public bool IsCountdowntoStartActive()
+    {
+        return state == State.CountdownToStart;
+    }
+
+    // Get remaining time for countdown to start
+    public float GetCountdownToStartTimer()
+    {
+        return countdownToStartTimer;
+    }
+
+    // Check if the game is over
+    public bool IsGameOver()
+    {
+        return state == State.GameOver;
+    }
+
+    // Get normalized progress of game playing timer
+    public float GetGamePlayingTimerNormalized()
+    {
+        return 1 - (gamePlayingTimer / gamePlayingTimerMax);
+    }
+
+    // Toggle pause state of the game
+    public void TogglePauseGame()
+    {
+        isGamePaused = !isGamePaused;
+        if (isGamePaused)
+        {
+            Time.timeScale = 0f; // Pause the game
+            OnGamePaused?.Invoke(this, EventArgs.Empty); // Invoke pause event
+        }
+        else
+        {
+            Time.timeScale = 1f; // Unpause the game
+            OnGameUnpaused?.Invoke(this, EventArgs.Empty); // Invoke unpause event
+        }
+    }
+}
+```
 
 
-<h2>Description</h2>
 
-<p>Complete as many dishes for the customers as you can before the timer goes off! I made some special additions and changes to my version of the game, to make it play more similarly to the hit game "Overcooked!". This game was developed on Unity3D along with Blender for modelling required assets. It includes a tutorial for helping the player understand how the game works and an elaborate system of completing recipes by combining ingredients in the game. This game was created on Unity3D, taking inspiration from Code Monkeys' Youtube video: https://www.youtube.com/watch?v=AmGSEH7QcDg&t.</p>
-
-<h2>Languages and Utilities Used</h2>
-
-<ul>
-  <li><b>Unity</b></li>
-  <li><b>C#</b></li>
-  <li><b>Blender</b></li>
-</ul>
-
-<h2>Environments Used</h2>
-
-<ul>
-  <li><b>Windows 11</b></li>
-</ul>
-
-<h2>
-<a href="https://github.com/pedromussi1/PuzzleSolver/blob/main/READCODE.md">Code Breakdown Here!</a>
-</h2>
-
-
-<h2>Game Walk-through</h2>
-
-<h3>Main Menu</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/hs2RqfV.png" alt="Level 1"></kbd>
-</p>
-
-<p>After launching the game, this is the screen the player will be looking at. The buttons the player can click on are "Play" and "Quit". In the future, I plan on adding the option for the player to pick a different skin to play in the game, but for now the player will play with the yellow skin.</p>
-
-<h3>Tutorial Screen</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/nCy2UPu.png" alt="Level 2"></kbd>
-</p>
-
-<p>After pressing play on the main menu, the player will see a tutorial screen where the can see instructions on how to play the game and the controls needed to play the game. The player can close this screen and start the game by pressing the "Interact" button, which is set to the "E" key by default.</p>
-
-<h3>Pause Menu</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/lBjybs9.png" alt="Level 2"></kbd>
-</p>
-
-<p>After pressing play on the main menu, the player will be able to press the "Escape" button to open the Pause Menu. The pause menu offers a few options, including "Resume" which makes the player go back to the game normally, "Options" which opens a new menu for changing other ascpects in the game I will cover later, "Restart" which will play the game from the beginning, and "Main Menu" which goes back to the menu I talked about previously.</p>
-
-<h3>Options Menu</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/ng4mlm0.png" alt="Level 3"></kbd>
-</p>
-
-<p>In the options menu we can change things about the game such as the volume of sound effects, music, and keybinds for how the player moves and interacts with objects in the game.</p>
-
-<h3>Game Over</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/JAcQuYD.png" alt="Level 4"></kbd>
-</p>
-
-<p>When the timer ends, the Game Over screen is shown. On this screen the player can see how many recipes were delivered by the player, and gives the options for the player to click on the "Restart" or "Quit" buttons. "Restart" will play the game from the beginning and "Quit" will simply close the game.</p>
-
-<h3>Picking Up Ingredients</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/tzfPuHQ.png" alt="Level 5"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/mWqgJOu.png" alt="Level 6"></kbd>
-</p>
-
-<p>In the game the player is required to pick up ingredients from their respective stations and that they can be used in making the recipes be asked for. The player must look at the station and press the interact button (by default the "E" key) to pick up the ingredient of that respective station. In the pictures above we have the player picking up bread and cheese.</p>
-
-<h3>Cutting Tomatoes and Cabbages</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/DkzZ2In.png" alt="Level 7"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/nkAhooD.png" alt="Level 8"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/RTa0got.png" alt="Level 9"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/KlLBuhB.png" alt="Level 9"></kbd>
-</p>
-
-<p>In the game the player is required to cut ingredients at cutting stations so that they can be used for completing recipes. The player must look at the station and press the interact alternate button (by default the "F" key) until the ingredient is fully cut. In the pictures above we have the player cutting tomatoes and cabbages.</p>
-
-<h3>Cooking Patty</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/Qb4lSy8.png" alt="Level 7"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/uRfb79u.png" alt="Level 7"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/0uZDt8t.png" alt="Level 7"></kbd>
-</p>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/ZvnY68b.png" alt="Level 7"></kbd>
-</p>
-
-<p>The player has to cook a meat patty in order to make all types of burges. To do that the player gets an uncooked patty from the patty station, and lays it on the stove. By waiting for a bit, the patty gets cooked. If the player waits for too long, the patty will burn and cannot be used on making recipes anymore. A burnt patty is useless, so the player may want to dispose of it by using the trash counter.</p>
-
-<h3>Using Trash</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/bxjQ9Zm.png" alt="Level 7"></kbd>
-</p>
-
-<p>By holding an item and interacting with trash counter, the player will destroy that item and thus will have their hands free to pick up any other item they desire.</p>
-
-<h3>Delivery Success</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/6ws986f.png" alt="Level 7"></kbd>
-</p>
-
-<p>By following the recipe correctly and completing one of the dishes in the list, the player can now deliver the recipe. This is where the delivery counter comes in. By interacting with the delivery counter while holding a correct recipe, the player will deliver that dish and increase the amount of recipes delivered by one.</p>
-
-<h3>Delivery Failed</h3>
-
-<p align="center">
-  <kbd><img src="https://i.imgur.com/NFABh4T.png" alt="Level 7"></kbd>
-</p>
-
-<p>In case the player delivers an incorrect recipe to the delivery counter, that item will be lost and a message saying the delivery failed will be shown.</p>
