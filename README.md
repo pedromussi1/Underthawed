@@ -4,7 +4,7 @@
 ### [YouTube Demonstration](https://www.youtube.com/watch?v=wSi-ISIEWBs)
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=wSi-ISIEWBs"><img src="https://www.youtube.com/watch?v=wSi-ISIEWBs" alt="YouTube Demonstration"></a>
+  <a href="https://www.youtube.com/watch?v=wSi-ISIEWBs"><img src="https://img.youtube.com/vi/wSi-ISIEWBs/0.jpg" alt="YouTube Demonstration"></a>
 </p>
 
 ### [Play the Game Here!](https://play.unity.com/mg/other/firstperson-3)
