@@ -73,12 +73,11 @@
   <kbd><img src="https://i.imgur.com/tzfPuHQ.png" alt="Level 5"></kbd>
 </p>
 
-
 <p align="center">
   <kbd><img src="https://i.imgur.com/mWqgJOu.png" alt="Level 6"></kbd>
 </p>
 
-<p>This level is similar to a memory card game. By touching each button on the platform, a color will be revealed. The player must match the pairs of colored blocks and complete the puzzle. By doing so, the next level is unlocked.</p>
+<p>In the game the player is required to pick up ingredients from their respective stations and that they can be used in making the recipes be asked for. In the pictures above we have the player picking up bread and cheese.</p>
 
 <h3>Cutting Tomatoes and Cabbages</h3>
 
