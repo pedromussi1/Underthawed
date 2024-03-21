@@ -40,7 +40,11 @@ Allows rebinding of input actions such as movement, interaction, and pausing.
 Handles input events and triggers corresponding actions in the game.
 Each of these scripts plays a crucial role in different aspects of the game, such as player control, game state management, object interactions, audio feedback, and input handling. Together, they create an immersive and interactive kitchen environment where players can engage in various activities such as cooking, delivering recipes, and managing kitchen operations. By working together, these scripts provide a seamless and enjoyable gameplay experience for the player.</p>
 
+
+
 ### <h3>Player.cs</h3>
+
+<div style="overflow-y: scroll; max-height: 100px;">
 
 ```csharp
 
@@ -249,7 +253,7 @@ public class Player : MonoBehaviour, IKitchenObjectParent
     }
 }
 ```
-
+</div>
 <hr>
 
 ### <h3>KitchenGameManager.cs</h3>
