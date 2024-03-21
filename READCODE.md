@@ -988,22 +988,37 @@ public class GameInput : MonoBehaviour
 </details>
 
 <hr>
+
+<h2>UI</h2>
+
 ### <h3>Player.cs</h3>
 
+<details>
+<summary>Click to expand code</summary>
+    
 ```csharp
 
 ```
+</details>
 <hr>
 ### <h3>Player.cs</h3>
 
+<details>
+<summary>Click to expand code</summary>
+    
 ```csharp
 
 ```
-
+</details>
+<hr>
 ### <h3>Player.cs</h3>
 
+<details>
+<summary>Click to expand code</summary>
+    
 ```csharp
 
 ```
-
+</details>
+<hr>
 
