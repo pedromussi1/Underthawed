@@ -12,7 +12,7 @@
 
 <h2>Description</h2>
 
-<p>This is a three-dimensional puzzle game based on increased levels of mechanics and difficulty as the player progresses, acquiring new skills and following tips will help the player move to the next level. This game was developed on Unity3D along with Blender for modelling required assets. It includes tips for helping the player move to the next level and introduces innovative mechanics not usually seen on games of this caliber such as trampoline, shoot tube, Simon color game, and memory card game. All assets and ideas portrayed in this game are my own, no outside sources were used.</p>
+<p>Complete as many dishes for the customers as you can before the timer goes off! I made some special additions and changes to my version of the game, to make it play more similarly to the hit game "Overcooked!". This game was developed on Unity3D along with Blender for modelling required assets. It includes a tutorial for helping the player understand how the game works and an elaborate system of completing recipes by combining ingredients in the game. This game was created on Unity3D, taking inspiration from Code Monkeys' Youtube video: https://www.youtube.com/watch?v=AmGSEH7QcDg&t.</p>
 
 <h2>Languages and Utilities Used</h2>
 
