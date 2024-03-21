@@ -7,7 +7,7 @@
   <a href="https://www.youtube.com/watch?v=wSi-ISIEWBs"><img src="https://img.youtube.com/vi/wSi-ISIEWBs/0.jpg" alt="YouTube Demonstration"></a>
 </p>
 
-### [Play the Game Here!](https://play.unity.com/mg/other/firstperson-3)
+### [Play the Game Here!](https://play.unity.com/mg/other/webgl-builds-397102)
 
 
 <h2>Description</h2>
