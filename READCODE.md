@@ -255,12 +255,14 @@ public class Player : MonoBehaviour, IKitchenObjectParent
 }
 ```
 </details>
+
 <hr>
 
 ### <h3>KitchenGameManager.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
+    
 ```csharp
 using System;
 using System.Collections;
@@ -413,11 +415,14 @@ public class KitchenGameManager : MonoBehaviour
 ```
 
 </details>
+
 <hr>
+
 ### <h3>DeliveryManager.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
+    
 ```csharp
 
 using System;
@@ -546,9 +551,13 @@ public class DeliveryManager : MonoBehaviour
     }
 }
 ```
+
+</details>
+
 <hr>
 
 ### <h3>KitchenObject.cs</h3>
+
 <details>
 <summary>Click to expand code</summary>
     
@@ -640,8 +649,14 @@ public class KitchenObject : MonoBehaviour
 
 ```
 </details>
+
 <hr>
+
+    
 ### <h3>SoundManager.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
 
 ```csharp
 using System.Collections;
@@ -777,9 +792,16 @@ public class SoundManager : MonoBehaviour
 }
 
 ```
+</details>
+
 <hr>
+
 ### <h3>GameInput.cs</h3>
 
+
+<details>
+<summary>Click to expand code</summary>
+    
 ```csharp
 using System;
 using System.Collections;
@@ -962,6 +984,9 @@ public class GameInput : MonoBehaviour
 }
 
 ```
+
+</details>
+
 <hr>
 ### <h3>Player.cs</h3>
 
