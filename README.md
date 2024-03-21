@@ -43,6 +43,14 @@
 
 <p>After launching the game, this is the screen the player will be looking at. The buttons the player can click on are "Play" and "Quit". In the future, I plan on adding the option for the player to pick a different skin to play in the game, but for now the player will play with the yellow skin.</p>
 
+<h3>Tutorial Screen</h3>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/nCy2UPu.png" alt="Level 2"></kbd>
+</p>
+
+<p>After pressing play on the main menu, the player will see a tutorial screen where the can see instructions on how to play the game and the controls needed to play the game. The player can close this screen and start the game by pressing the "Interact" button, which is set to the "E" key by default.</p>
+
 <h3>Pause Menu</h3>
 
 <p align="center">
@@ -133,4 +141,12 @@
   <kbd><img src="https://i.imgur.com/6ws986f.png" alt="Level 7"></kbd>
 </p>
 
-<p>By following the recipe correctly and completing one of the dishes in the list, the player cannot now deliver the recipe. This is where the delivery counter comes in. By interacting with the delivery counter while holding a correct recipe, they player will deliver that dish and increase the amount of recipes delivered by one.</p>
+<p>By following the recipe correctly and completing one of the dishes in the list, the player can now deliver the recipe. This is where the delivery counter comes in. By interacting with the delivery counter while holding a correct recipe, the player will deliver that dish and increase the amount of recipes delivered by one.</p>
+
+<h3>Delivery Failed</h3>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/NFABh4T.png" alt="Level 7"></kbd>
+</p>
+
+<p>In case the player delivers an incorrect recipe to the delivery counter, that item will be lost and a message saying the delivery failed will be shown.</p>
