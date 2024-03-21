@@ -41,7 +41,7 @@
   <kbd><img src="https://i.imgur.com/hs2RqfV.png" alt="Level 1"></kbd>
 </p>
 
-<p>In this level, we introduce the first, most basic mechanics of the game, which are how to walk and jump. In order to move to the next level, the player must move from platforms and get to the gold coin.</p>
+<p>After launching the game, this is the screen the player will be looking at. The buttons the player can click on are "Play" and "Quit". In the future, I plan on adding the option for the player to pick a different skin to play in the game, but for now the player will play with the yellow skin.</p>
 
 <h3>Pause Menu</h3>
 
@@ -68,45 +68,71 @@
 
 <p>In this level, we introduce the trampoline object, distinguished with a bright green color. By touching object with this green color, the player will be propelled upwards, thus being able to make higher jumps.</p>
 
-<h3>Level 5</h3>
+<h3>Picking Up Ingredients</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/RLMFD1t.png" alt="Level 5"></kbd>
+  <kbd><img src="https://i.imgur.com/tzfPuHQ.png" alt="Level 5"></kbd>
 </p>
 
-<p>This level is used as a recap of all the abilities and mechanics introduced in the game so far. By using everything the player learned with levels 1-4, they will be able to move on to the next level.</p>
-
-<h3>Level 6</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/4mwyQXP.png" alt="Level 6"></kbd>
+  <kbd><img src="https://i.imgur.com/mWqgJOu.png" alt="Level 6"></kbd>
 </p>
 
 <p>This level is similar to a memory card game. By touching each button on the platform, a color will be revealed. The player must match the pairs of colored blocks and complete the puzzle. By doing so, the next level is unlocked.</p>
 
-<h3>Level 7</h3>
+<h3>Cutting Tomatoes and Cabbages</h3>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/Mdney5Y.png" alt="Level 7"></kbd>
+  <kbd><img src="https://i.imgur.com/DkzZ2In.png" alt="Level 7"></kbd>
 </p>
 
-<p>This level introduces the Shoot Tubes that teleport the player up, down, or forward. In this level it is used as a fun and fast way to travel through the level and collect all the rings. The pplayer only has to be careful not to fall off the platforms.</p>
-
-<h3>Level 8</h3>
-
 <p align="center">
-  <kbd><img src="https://i.imgur.com/Miq0agH.png" alt="Level 8"></kbd>
+  <kbd><img src="https://i.imgur.com/nkAhooD.png" alt="Level 8"></kbd>
 </p>
 
-<p>This level is similar to a Simon Color game. A big cube shows a color sequence. The player must click the buttons to match that color sequence. After three turns taht get increasingly difficult, the player completes the level.</p>
-
-<h3>Level 9</h3>
+<p align="center">
+  <kbd><img src="https://i.imgur.com/RTa0got.png" alt="Level 9"></kbd>
+</p>
 
 <p align="center">
-  <kbd><img src="https://i.imgur.com/kyygtZ3.png" alt="Level 9"></kbd>
+  <kbd><img src="https://i.imgur.com/KlLBuhB.png" alt="Level 9"></kbd>
 </p>
 
 <p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
 
+<h3>Cooking Patty</h3>
 
+<p align="center">
+  <kbd><img src="https://i.imgur.com/Qb4lSy8.png" alt="Level 7"></kbd>
+</p>
 
+<p align="center">
+  <kbd><img src="https://i.imgur.com/uRfb79u.png" alt="Level 7"></kbd>
+</p>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/0uZDt8t.png" alt="Level 7"></kbd>
+</p>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/ZvnY68b.png" alt="Level 7"></kbd>
+</p>
+
+<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+
+<h3>Using Trash</h3>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/bxjQ9Zm.png" alt="Level 7"></kbd>
+</p>
+
+<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
+
+<h3>Delivery Success</h3>
+
+<p align="center">
+  <kbd><img src="https://i.imgur.com/6ws986f.png" alt="Level 7"></kbd>
+</p>
+
+<p>This level is a maze. The player must go inside the maze and collect the rings hidden inside the rooms. They must track their progress and fidn their way to all the rings to complete the level.</p>
