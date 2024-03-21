@@ -49,7 +49,7 @@
   <kbd><img src="https://i.imgur.com/lBjybs9.png" alt="Level 2"></kbd>
 </p>
 
-<p>In this level, we introduce the concept of sprinting, with the idea that by using the sprint mechanism, the player can move faster and thus make longer jumps. The player must master the sprinting mechanic in order to move on to the next level.</p>
+<p>After pressing play on the main menu, the player will be able to press the "Escape" button to open the Pause Menu. The pause menu offers a few options, including "Resume" which makes the player go back to the game normally, "Options" which opens a new menu for changing other ascpects in the game I will cover later, "Restart" which will play the game from the beginning, and "Main Menu" which goes back to the menu I talked about previously.</p>
 
 <h3>Options Menu</h3>
 
