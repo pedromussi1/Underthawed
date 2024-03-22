@@ -991,7 +991,7 @@ public class GameInput : MonoBehaviour
 
 <h2>UI</h2>
 
-### <h3>Player.cs</h3>
+### <h3>DeliveryResultUI.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
@@ -1002,7 +1002,7 @@ public class GameInput : MonoBehaviour
 </details>
 <hr>
 
-### <h3>Player.cs</h3>
+### <h3>GamePauseUI.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
@@ -1013,7 +1013,40 @@ public class GameInput : MonoBehaviour
 </details>
 <hr>
 
-### <h3>Player.cs</h3>
+### <h3>OptionsUI.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+```
+</details>
+<hr>
+
+### <h3>PlateIconsUI.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+```
+</details>
+<hr>
+
+### <h3>ProgressBarUI.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+```
+</details>
+<hr>
+
+### <h3>TutorialUI.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
