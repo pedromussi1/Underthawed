@@ -1086,6 +1086,91 @@ public class DeliveryResultUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class GamePausedUI : MonoBehaviour
+{
+    // Serialized fields accessible in the Unity Inspector
+    [SerializeField] private TextMeshProUGUI recipesDeliveredText;   // Text displaying number of recipes delivered
+
+    [SerializeField] private Button resumeButton;         // Button to resume the game
+    [SerializeField] private Button mainMenuButton;       // Button to go to the main menu
+    [SerializeField] private Button optionsButton;        // Button to open options menu
+    [SerializeField] private Button restartButton;        // Button to restart the game
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        // Add listener to resume button to toggle game pause state
+        resumeButton.onClick.AddListener(() =>
+        {
+            KitchenGameManager.Instance.TogglePauseGame();
+        });
+
+        // Add listener to main menu button to load main menu scene
+        mainMenuButton.onClick.AddListener(() =>
+        {
+            Loader.Load(Loader.Scene.MainMenuScene);
+        });
+
+        // Add listener to options button to show options menu
+        optionsButton.onClick.AddListener(() =>
+        {
+            Hide();  // Hide the current UI
+            OptionsUI.Instance.Show(Show);  // Show options UI and pass Show method as callback
+        });
+
+        // Add listener to restart button to reload the game scene
+        restartButton.onClick.AddListener(() =>
+        {
+            Loader.Load(Loader.Scene.GameScene);
+        });
+
+        // Ensure time scale is set to 1 (normal speed)
+        Time.timeScale = 1f;
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to game pause and unpause events
+        KitchenGameManager.Instance.OnGamePaused += KitchenGameManager_OnGamePaused;
+        KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
+
+        // Hide the UI initially
+        Hide();
+    }
+
+    // Event handler for game unpause event
+    private void KitchenGameManager_OnGameUnpaused(object sender, System.EventArgs e)
+    {
+        Hide();  // Hide the UI when game is unpaused
+    }
+
+    // Event handler for game pause event
+    private void KitchenGameManager_OnGamePaused(object sender, System.EventArgs e)
+    {
+        Show();  // Show the UI when game is paused
+    }
+
+    // Method to show the UI
+    private void Show()
+    {
+        gameObject.SetActive(true);  // Activate the UI GameObject
+
+        resumeButton.Select();  // Select the resume button for easier navigation
+    }
+
+    // Method to hide the UI
+    private void Hide()
+    {
+        gameObject.SetActive(false);  // Deactivate the UI GameObject
+    }
+}
 
 ```
 </details>
@@ -1097,6 +1182,155 @@ public class DeliveryResultUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class OptionsUI : MonoBehaviour
+{
+    // Singleton instance of OptionsUI
+    public static OptionsUI Instance { get; private set; }
+
+    // Serialized fields accessible in the Unity Inspector
+    [SerializeField] private Button soundEffectsButton;             // Button to control sound effects volume
+    [SerializeField] private Button musicButton;                    // Button to control music volume
+    [SerializeField] private Button closeButton;                    // Button to close options menu
+    [SerializeField] private Button moveUpButton;                   // Button to rebind move up key
+    [SerializeField] private Button moveDownButton;                 // Button to rebind move down key
+    [SerializeField] private Button moveLeftButton;                 // Button to rebind move left key
+    [SerializeField] private Button moveRightButton;                // Button to rebind move right key
+    [SerializeField] private Button interactButton;                 // Button to rebind interact key
+    [SerializeField] private Button interactAlternateButton;        // Button to rebind alternate interact key
+    [SerializeField] private Button pauseButton;                    // Button to rebind pause key
+    [SerializeField] private TextMeshProUGUI soundEffectsText;      // Text displaying sound effects volume
+    [SerializeField] private TextMeshProUGUI musicText;             // Text displaying music volume
+    [SerializeField] private TextMeshProUGUI moveUpText;            // Text displaying current move up key binding
+    [SerializeField] private TextMeshProUGUI moveDownText;          // Text displaying current move down key binding
+    [SerializeField] private TextMeshProUGUI moveLeftText;          // Text displaying current move left key binding
+    [SerializeField] private TextMeshProUGUI moveRightText;         // Text displaying current move right key binding
+    [SerializeField] private TextMeshProUGUI interactText;          // Text displaying current interact key binding
+    [SerializeField] private TextMeshProUGUI interactAlternateText; // Text displaying current alternate interact key binding
+    [SerializeField] private TextMeshProUGUI pauseText;             // Text displaying current pause key binding
+    [SerializeField] private Transform pressToRebindKeyTransform;  // UI element to prompt for key rebinding
+
+    private Action onCloseButtonAction;  // Action to execute when closing options menu
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        Instance = this;  // Set the singleton instance to this OptionsUI instance
+
+        // Add listeners to buttons to perform corresponding actions
+        soundEffectsButton.onClick.AddListener(() =>
+        {
+            SoundManager.Instance.ChangeVolume();  // Change sound effects volume
+            UpdateVisual();  // Update UI visuals
+        }); 
+
+        musicButton.onClick.AddListener(() =>
+        {
+            MusicManager.Instance.ChangeVolume();  // Change music volume
+            UpdateVisual();  // Update UI visuals
+        });        
+
+        closeButton.onClick.AddListener(() =>
+        {
+            Hide();  // Hide options menu
+            onCloseButtonAction();  // Execute action associated with closing options menu
+        });
+
+        // Add listeners to key rebinding buttons
+        moveUpButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Move_Up); });
+        moveDownButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Move_Down); });
+        moveLeftButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Move_Left); });
+        moveRightButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Move_Right); });
+        interactButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Interact); });
+        interactAlternateButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.InteractAlternate); });
+        pauseButton.onClick.AddListener(() => { RebindBinding(GameInput.Binding.Pause); });
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to game unpause event
+        KitchenGameManager.Instance.OnGameUnpaused += KitchenGameManager_OnGameUnpaused;
+
+        // Update UI visuals
+        UpdateVisual();
+
+        // Hide UI element for key rebinding prompt
+        HidePressToRebindKey();
+
+        // Hide options menu initially
+        Hide();
+    }
+
+    // Event handler for game unpause event
+    private void KitchenGameManager_OnGameUnpaused(object sender, System.EventArgs e)
+    {
+        Hide();  // Hide options menu when game is unpaused
+    }
+
+    // Update UI visuals based on current settings
+    private void UpdateVisual()
+    {
+        // Update sound effects volume text
+        soundEffectsText.text = "Sound Effect: " + Mathf.Round(SoundManager.Instance.GetVolume() * 10f);
+        
+        // Update music volume text
+        musicText.text = "Music: " + Mathf.Round(MusicManager.Instance.GetVolume() * 10f);
+
+        // Update key binding texts
+        moveUpText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        moveDownText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        moveLeftText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        moveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        interactText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        interactAlternateText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        pauseText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Pause);
+    }
+
+    // Method to show the options menu
+    public void Show(Action onCloseButtonAction)
+    {
+        this.onCloseButtonAction = onCloseButtonAction;  // Set the action to execute when closing options menu
+        gameObject.SetActive(true);  // Activate the options menu GameObject
+
+        soundEffectsButton.Select();  // Select the sound effects button for easier navigation
+    }
+
+    // Method to hide the options menu
+    private void Hide()
+    {
+        gameObject.SetActive(false);  // Deactivate the options menu GameObject
+    }
+
+    // Method to show the UI element for key rebinding prompt
+    private void ShowPressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(true);  // Activate the UI element
+    }
+
+    // Method to hide the UI element for key rebinding prompt
+    private void HidePressToRebindKey()
+    {
+        pressToRebindKeyTransform.gameObject.SetActive(false);  // Deactivate the UI element
+    }
+
+    // Method to initiate key rebinding
+    private void RebindBinding(GameInput.Binding binding) {
+        ShowPressToRebindKey();  // Show UI element for key rebinding prompt
+        // Initiate key rebinding and provide callback to hide the UI element and update visuals
+        GameInput.Instance.RebindBinding(binding, () => {
+            HidePressToRebindKey();  // Hide UI element for key rebinding prompt
+            UpdateVisual();  // Update UI visuals
+        });
+    }
+
+}
 
 ```
 </details>
@@ -1108,6 +1342,63 @@ public class DeliveryResultUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlateIconsUI : MonoBehaviour
+{
+    [SerializeField] private PlateKitchenObject plateKitchenObject;  // Reference to the PlateKitchenObject script
+    [SerializeField] private Transform iconTemplate;                // Reference to the template for plate icons
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        // Deactivate the icon template to prevent it from being visible
+        iconTemplate.gameObject.SetActive(false);
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to the event triggered when an ingredient is added to the plate
+        plateKitchenObject.OnIngredientAdded += PlateKitchenObject_OnIngredientAdded;
+    }
+
+    // Event handler for the event triggered when an ingredient is added to the plate
+    private void PlateKitchenObject_OnIngredientAdded(object sender, PlateKitchenObject.OnIngredientAddedEventArgs e)
+    {
+        // Update the visual representation of the plate icons
+        UpdateVisual();
+    }
+
+    // Method to update the visual representation of the plate icons
+    private void UpdateVisual()
+    {
+        // Iterate through all child transforms of the parent transform
+        foreach (Transform child in transform)
+        {
+            // Skip the icon template
+            if (child == iconTemplate) continue;
+
+            // Destroy the game object associated with the child transform
+            Destroy(child.gameObject);
+        }
+
+        // Iterate through each kitchen object on the plate
+        foreach (KitchenObjectSO kitchenObjectSO in plateKitchenObject.GetKitchenObjectSOList())
+        {
+            // Instantiate a new icon from the icon template
+            Transform iconTransform = Instantiate(iconTemplate, transform);
+
+            // Activate the instantiated icon
+            iconTransform.gameObject.SetActive(true);
+
+            // Set the kitchen object scriptable object for the instantiated icon
+            iconTransform.GetComponent<PlateIconSingleUI>().SetKitchenObjectSO(kitchenObjectSO);
+        }
+    }
+}
 
 ```
 </details>
@@ -1119,6 +1410,70 @@ public class DeliveryResultUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ProgressBarUI : MonoBehaviour
+{
+    [SerializeField] private GameObject hasProgressGameObject;  // Reference to the GameObject that has progress
+    [SerializeField] private Image barImage;                     // Reference to the image component of the progress bar
+
+    private IHasProgress hasProgress;  // Reference to the interface for objects with progress
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Get the component implementing the IHasProgress interface from the specified GameObject
+        hasProgress = hasProgressGameObject.GetComponent<IHasProgress>();
+
+        // If the component is not found, log an error
+        if (hasProgress == null)
+        {
+            Debug.LogError("Game Object " + hasProgressGameObject + " does not have a component implementing IHasProgress");
+        }
+
+        // Subscribe to the ProgressChanged event of the object with progress
+        hasProgress.OnProgressChanged += HasProgress_OnProgressChanged;
+
+        // Set the initial fill amount of the progress bar to 0
+        barImage.fillAmount = 0f;
+
+        // Hide the progress bar initially
+        Hide();
+    }
+
+    // Event handler for the ProgressChanged event
+    private void HasProgress_OnProgressChanged(object sender, IHasProgress.OnProgressChangedEventArgs e)
+    {
+        // Update the fill amount of the progress bar based on the normalized progress value
+        barImage.fillAmount = e.progressNormalized;
+
+        // If the progress is either 0 or 100%, hide the progress bar, otherwise, show it
+        if (e.progressNormalized == 0f || e.progressNormalized == 1f)
+        {
+            Hide();
+        }
+        else
+        {
+            Show();
+        }
+    }
+
+    // Method to show the progress bar
+    private void Show()
+    {
+        gameObject.SetActive(true);  // Activate the progress bar GameObject
+    }
+
+    // Method to hide the progress bar
+    private void Hide()
+    {
+        gameObject.SetActive(false);  // Deactivate the progress bar GameObject
+    }
+
+}
 
 ```
 </details>
@@ -1130,6 +1485,80 @@ public class DeliveryResultUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+
+public class TutorialUI : MonoBehaviour
+{
+    // Serialized fields accessible in the Unity Inspector
+    [SerializeField] private TextMeshProUGUI keyMoveUpText;         // Text for displaying key binding for moving up
+    [SerializeField] private TextMeshProUGUI keyMoveDownText;       // Text for displaying key binding for moving down
+    [SerializeField] private TextMeshProUGUI keyMoveLeftText;       // Text for displaying key binding for moving left
+    [SerializeField] private TextMeshProUGUI keyMoveRightText;      // Text for displaying key binding for moving right
+    [SerializeField] private TextMeshProUGUI keyInteractText;       // Text for displaying key binding for interact
+    [SerializeField] private TextMeshProUGUI keyInteractAltText;    // Text for displaying key binding for alternate interact
+    [SerializeField] private TextMeshProUGUI keyPauseText;          // Text for displaying key binding for pause
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to the event triggered when key bindings are rebound
+        GameInput.Instance.OnBindingRebind += GameInput_OnBindingRebind;
+
+        // Subscribe to the event triggered when the game state changes
+        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
+
+        // Update the visual representation of key bindings
+        UpdateVisual();
+
+        // Show the tutorial UI initially
+        Show();
+    }
+
+    // Event handler for the game state change event
+    private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)
+    {
+        // If the countdown to start is active, hide the tutorial UI
+        if (KitchenGameManager.Instance.IsCountdowntoStartActive())
+        {
+            Hide();
+        }
+    }
+
+    // Event handler for the key binding rebind event
+    private void GameInput_OnBindingRebind(object sender, System.EventArgs e)
+    {
+        // Update the visual representation of key bindings
+        UpdateVisual();
+    }
+
+    // Method to update the visual representation of key bindings
+    private void UpdateVisual()
+    {
+        // Set the text for each key binding based on the current bindings
+        keyMoveUpText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
+        keyMoveDownText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
+        keyMoveLeftText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
+        keyMoveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
+        keyInteractText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
+        keyInteractAltText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
+        keyPauseText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Pause);
+    }
+
+    // Method to show the tutorial UI
+    private void Show()
+    {
+        gameObject.SetActive(true);  // Activate the tutorial UI GameObject
+    }
+
+    // Method to hide the tutorial UI
+    private void Hide()
+    {
+        gameObject.SetActive(false);  // Deactivate the tutorial UI GameObject
+    }
+}
 
 ```
 </details>
