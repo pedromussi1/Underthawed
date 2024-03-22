@@ -991,6 +991,30 @@ public class GameInput : MonoBehaviour
 
 <h2>UI</h2>
 
+<p>DeliveryResultUI.cs:
+
+Handles the UI for displaying delivery results (success or failure). Subscribes to events triggered by the DeliveryManager to update the UI based on delivery success or failure.
+
+GamePausedUI.cs:
+
+Manages the UI for the game pause menu.Allows the player to resume the game, return to the main menu, open options menu, or restart the game. Subscribes to events triggered by the KitchenGameManager to show/hide the pause menu when the game is paused/unpaused.
+
+OptionsUI.cs:
+
+Controls the options menu UI.Allows the player to adjust sound effects and music volume, rebind controls, and close the options menu. Subscribes to events triggered by the GameInput for control rebinding and KitchenGameManager for game pause/unpause.
+
+PlateIconsUI.cs:
+
+Handles the UI for displaying icons representing items on a plate. Updates the UI based on changes to the PlateKitchenObject which represents items on a plate.
+
+ProgressBarUI.cs:
+
+Manages the UI for displaying a progress bar. Updates the UI based on changes to the progress of an object that implements the IHasProgress interface.
+
+TutorialUI.cs:
+
+Controls the UI for displaying tutorial information. Displays key bindings for player actions and hides during certain game states, like when the game is about to start. In summary, these code files work together to manage different aspects of the game's user interface, including delivery results, pause menu, options menu, plate icons, progress bar, and tutorial information. They interact with other scripts and game managers to update UI elements based on game events and player actions.</p>
+
 ### <h3>DeliveryResultUI.cs</h3>
 
 <details>
