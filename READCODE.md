@@ -1508,6 +1508,55 @@ public class ProgressBarUI : MonoBehaviour
 
 <h2>Counters</h2>
 
+<p>BaseCounter.cs:
+
+This serves as the base class for all counter-related objects in the kitchen scene.
+It defines common properties and methods shared by all counter objects, such as interacting with players, handling kitchen objects, and managing events.
+
+ClearCounter.cs:
+
+Inherits from BaseCounter.
+Represents a counter where players can clear their carried kitchen objects.
+It allows players to interact with the counter, transferring their kitchen objects onto it.
+
+ContainerCounter.cs:
+
+Inherits from BaseCounter.
+Represents a counter with a container (like a pot or a pan) where players can place kitchen objects for cooking.
+It triggers events when players interact with it to start cooking processes.
+
+CuttingCounter.cs:
+
+Inherits from BaseCounter and implements IHasProgress.
+Represents a counter with cutting functionality, where players can interact to cut kitchen objects.
+It tracks cutting progress, triggers events for cutting actions, and handles recipe-based cutting processes.
+
+DeliveryCounter.cs:
+
+Inherits from BaseCounter.
+Represents a counter where players can deliver finished recipes (e.g., plated dishes).
+It interacts with players to accept specific kitchen objects (e.g., plates) and trigger delivery actions.
+
+PlatesCounter.cs:
+
+Inherits from BaseCounter.
+Represents a counter that periodically spawns plates.
+It spawns plates over time and allows players to interact with it to pick up plates.
+
+StoveCounter.cs:
+
+Inherits from BaseCounter and implements IHasProgress.
+Represents a stove counter where players can cook kitchen objects.
+It handles frying and burning processes based on predefined recipes, tracks progress, and triggers events for state changes.
+
+TrashCounter.cs:
+
+Inherits from BaseCounter.
+Represents a counter where players can trash unwanted kitchen objects.
+It allows players to interact with it to dispose of kitchen objects.
+
+Each counter class extends the functionality of the BaseCounter class, adding specific behaviors related to its purpose. These counter objects interact with players and kitchen objects, trigger events for various actions, and may have additional functionalities such as cooking, cutting, delivering, or trashing objects. Overall, these classes work together to create a dynamic kitchen environment where players can perform various cooking-related tasks.</p>
+
 ### <h3>BaseCounter.cs</h3>
 
 <details>
