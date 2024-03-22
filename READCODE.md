@@ -997,6 +997,84 @@ public class GameInput : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class DeliveryResultUI : MonoBehaviour
+{
+    // Constant string for animation trigger
+    private const string POPUP = "Popup";
+
+    // Serialized fields accessible in the Unity Inspector
+    [SerializeField] private Image backgroundImage;        // Background image for the result UI
+    [SerializeField] private Image iconImage;               // Icon image representing success/failure
+    [SerializeField] private TextMeshProUGUI messageText;   // Text displaying success/failure message
+    [SerializeField] private Color successColor;            // Color for success background
+    [SerializeField] private Color failedColor;             // Color for failure background
+    [SerializeField] private Sprite successSprite;          // Sprite for success icon
+    [SerializeField] private Sprite failedSprite;           // Sprite for failure icon
+
+    private Animator animator;  // Animator component for handling animations
+
+    // Called when the script instance is being loaded
+    private void Awake()
+    {
+        // Get the Animator component attached to the same GameObject
+        animator = GetComponent<Animator>();
+    }
+
+    // Called before the first frame update
+    private void Start()
+    {
+        // Subscribe to events triggered by DeliveryManager for recipe success and failure
+        DeliveryManager.Instance.OnRecipeSuccess += DeliveryManager_OnRecipeSuccess;
+        DeliveryManager.Instance.OnRecipeFailed += DeliveryManager_OnRecipeFailed;
+
+        // Deactivate the UI GameObject initially
+        gameObject.SetActive(false);
+    }
+
+    // Event handler for recipe failure event
+    private void DeliveryManager_OnRecipeFailed(object sender, System.EventArgs e)
+    {
+        // Activate the UI GameObject
+        gameObject.SetActive(true);
+
+        // Trigger the popup animation
+        animator.SetTrigger(POPUP);
+
+        // Set background color to indicate failure
+        backgroundImage.color = failedColor;
+
+        // Set icon image to indicate failure
+        iconImage.sprite = failedSprite;
+
+        // Set message text to indicate delivery failure
+        messageText.text = "DELIVERY\nFAILED";
+    }
+
+    // Event handler for recipe success event
+    private void DeliveryManager_OnRecipeSuccess(object sender, System.EventArgs e)
+    {
+        // Activate the UI GameObject
+        gameObject.SetActive(true);
+
+        // Trigger the popup animation
+        animator.SetTrigger(POPUP);
+
+        // Set background color to indicate success
+        backgroundImage.color = successColor;
+
+        // Set icon image to indicate success
+        iconImage.sprite = successSprite;
+
+        // Set message text to indicate delivery success
+        messageText.text = "DELIVERY\nSUCCESS";
+    }
+}
 
 ```
 </details>
