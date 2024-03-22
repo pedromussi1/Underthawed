@@ -1514,6 +1514,79 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a base counter in the kitchen scene.
+public class BaseCounter : MonoBehaviour, IKitchenObjectParent
+{
+    // Event that triggers when any object is placed on this counter.
+    public static event EventHandler OnAnyObjectPlacedHere;
+
+    // Method to reset static data of the class.
+    public static void ResetStaticData()
+    {
+        // Reset the event delegate to null.
+        OnAnyObjectPlacedHere = null;
+    }
+
+    // Reference to the point on the counter where objects are placed.
+    [SerializeField] private Transform counterTopPoint;
+
+    // Reference to the kitchen object placed on this counter.
+    private KitchenObject kitchenObject;
+
+    // Method to handle the interaction with the player.
+    public virtual void Interact(Player player)
+    {
+        // Log an error message indicating the base counter interaction.
+        Debug.LogError("BaseCounter.Interact();");
+    }
+
+    // Method to handle alternate interaction with the player.
+    public virtual void InteractAlternate(Player player)
+    {
+        // This method is currently commented out.
+        // Debug.LogError("BaseCounter.InteractAlternate();");
+    }
+
+    // Method to get the transform where kitchen objects should follow.
+    public Transform GetKitchenObjectFollowTransform()
+    {
+        return counterTopPoint;
+    }
+
+    // Method to set the kitchen object placed on this counter.
+    public void SetKitchenObject(KitchenObject kitchenObject)
+    {
+        // Set the kitchen object reference.
+        this.kitchenObject = kitchenObject;
+
+        // Trigger the event if an object is placed on this counter.
+        if (kitchenObject != null)
+        {
+            OnAnyObjectPlacedHere?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    // Method to get the kitchen object placed on this counter.
+    public KitchenObject GetKitchenObject() { return kitchenObject; }
+
+    // Method to clear the kitchen object from this counter.
+    public void ClearKitchenObject()
+    {
+        // Clear the kitchen object reference.
+        kitchenObject = null;
+    }
+
+    // Method to check if this counter has a kitchen object.
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
+}
 
 
 ```
@@ -1526,6 +1599,71 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a counter that can be cleared in the kitchen scene.
+public class ClearCounter : BaseCounter
+{
+    // Reference to the ScriptableObject representing the kitchen object to be cleared.
+    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+
+    // Override method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if there is no kitchen object on this counter.
+        if (!HasKitchenObject())
+        {
+            // There is no kitchen object on this counter.
+            if (player.HasKitchenObject())
+            {
+                // Player is carrying something, assign the object to this counter.
+                player.GetKitchenObject().SetKitchenObjectParent(this);
+            }
+            else
+            {
+                // Player is not carrying anything.
+                // No action needed.
+            }
+        }
+        else
+        {
+            // There is a kitchen object on this counter.
+            if (player.HasKitchenObject())
+            {
+                // Player is carrying something.
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    // Player is holding a plate.
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        // Add ingredient to the plate and destroy the kitchen object on this counter.
+                        GetKitchenObject().DestroySelf();
+                    }
+                }
+                else
+                {
+                    // Player is not carrying a plate but something else.
+                    if (GetKitchenObject().TryGetPlate(out plateKitchenObject))
+                    {
+                        // Counter is holding a plate.
+                        if (plateKitchenObject.TryAddIngredient(player.GetKitchenObject().GetKitchenObjectSO()))
+                        {
+                            // Add ingredient to the plate carried by the player and destroy the player's object.
+                            player.GetKitchenObject().DestroySelf();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Player is not carrying anything, assign the object on this counter to the player.
+                GetKitchenObject().SetKitchenObjectParent(player);
+            }
+        }
+    }
+}
 
 
 ```
@@ -1538,6 +1676,35 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a container counter in the kitchen scene.
+public class ContainerCounter : BaseCounter
+{
+    // Event triggered when the player grabs an object from this container counter.
+    public event EventHandler OnPlayerGrabbedObject;
+
+    // Reference to the ScriptableObject representing the kitchen object to be spawned.
+    [SerializeField] private KitchenObjectSO kitchenObjectSO;
+
+    // Override method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if the player is not carrying any kitchen object.
+        if (!player.HasKitchenObject())
+        {
+            // Player is not carrying anything.
+            // Spawn a kitchen object and assign it to the player.
+            KitchenObject.SpawnKitchenObject(kitchenObjectSO, player);
+
+            // Trigger the event indicating that the player grabbed an object from this container counter.
+            OnPlayerGrabbedObject?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}
 
 
 ```
@@ -1550,6 +1717,161 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a cutting counter in the kitchen scene.
+public class CuttingCounter : BaseCounter, IHasProgress
+{
+    // Event triggered when any object is cut.
+    public static event EventHandler OnAnyCut;
+
+    // Method to reset static data of the class.
+    new public static void ResetStaticData()
+    {
+        // Reset the event delegate to null.
+        OnAnyCut = null;
+    }
+
+    // Event triggered when the progress of cutting changes.
+    public event EventHandler<IHasProgress.OnProgressChangedEventArgs> OnProgressChanged;
+
+    // Event triggered when an object is cut.
+    public event EventHandler OnCut;
+
+    // Array of cutting recipes available for this cutting counter.
+    [SerializeField] private CuttingRecipeSO[] cuttingRecipeSOArray;
+
+    // Current progress of cutting.
+    private int cuttingProgress;
+
+    // Override method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if there is no kitchen object on this counter.
+        if (!HasKitchenObject())
+        {
+            // There is no kitchen object on this counter.
+            if (player.HasKitchenObject())
+            {
+                // Player is carrying something.
+                // Check if the carried object can be cut.
+                if (HasRecipeWithInput(player.GetKitchenObject().GetKitchenObjectSO()))
+                {
+                    // Player is carrying something that can be cut.
+                    // Assign the object to this counter and reset cutting progress.
+                    player.GetKitchenObject().SetKitchenObjectParent(this);
+                    cuttingProgress = 0;
+
+                    // Notify the progress change.
+                    CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+                    OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
+                    {
+                        progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax
+                    });
+                }
+            }
+            else
+            {
+                // Player is not carrying anything.
+                // No action needed.
+            }
+        }
+        else
+        {
+            // There is a kitchen object on this counter.
+            if (player.HasKitchenObject())
+            {
+                // Player is carrying something.
+                // Check if the player is holding a plate.
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+                    // Player is holding a Plate.
+                    // Add the kitchen object on this counter to the plate and destroy it.
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                    }
+                }
+            }
+            else
+            {
+                // Player is not carrying anything.
+                // Assign the kitchen object on this counter to the player.
+                GetKitchenObject().SetKitchenObjectParent(player);
+            }
+        }
+    }
+
+    // Override method to handle alternate interaction with the player.
+    public override void InteractAlternate(Player player)
+    {
+        // Check if there is a kitchen object on this counter and it can be cut.
+        if (HasKitchenObject() && HasRecipeWithInput(GetKitchenObject().GetKitchenObjectSO()))
+        {
+            // There is a kitchen object on this counter AND it can be cut.
+            // Increment cutting progress.
+            cuttingProgress++;
+
+            // Trigger events for cutting.
+            OnCut?.Invoke(this, EventArgs.Empty);
+            OnAnyCut?.Invoke(this, EventArgs.Empty);
+
+            // Notify the progress change.
+            CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+            OnProgressChanged?.Invoke(this, new IHasProgress.OnProgressChangedEventArgs
+            {
+                progressNormalized = (float)cuttingProgress / cuttingRecipeSO.cuttingProgressMax
+            });
+
+            // Check if cutting progress is completed.
+            if (cuttingProgress >= cuttingRecipeSO.cuttingProgressMax)
+            {
+                // Get the output kitchen object for the input.
+                KitchenObjectSO outputKitchenObjectSO = GetOutputForInput(GetKitchenObject().GetKitchenObjectSO());
+
+                // Destroy the kitchen object on this counter.
+                GetKitchenObject().DestroySelf();
+
+                // Spawn the output kitchen object on this counter.
+                KitchenObject.SpawnKitchenObject(outputKitchenObjectSO, this);
+            }
+        }
+    }
+
+    // Method to check if there is a cutting recipe available for a given input.
+    private bool HasRecipeWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+        return cuttingRecipeSO != null;
+    }
+
+    // Method to get the output kitchen object for a given input.
+    private KitchenObjectSO GetOutputForInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        CuttingRecipeSO cuttingRecipeSO = GetCuttingRecipeSOWithInput(inputKitchenObjectSO);
+        return cuttingRecipeSO != null ? cuttingRecipeSO.output : null;
+    }
+
+    // Method to get the cutting recipe for a given input.
+    private CuttingRecipeSO GetCuttingRecipeSOWithInput(KitchenObjectSO inputKitchenObjectSO)
+    {
+        // Iterate through all cutting recipes.
+        foreach (CuttingRecipeSO cuttingRecipeSO in cuttingRecipeSOArray)
+        {
+            // Check if the input of the recipe matches the given input.
+            if (cuttingRecipeSO.input == inputKitchenObjectSO)
+            {
+                // Return the matching cutting recipe.
+                return cuttingRecipeSO;
+            }
+        }
+        // No matching recipe found.
+        return null;
+    }
+}
 
 
 ```
@@ -1562,6 +1884,43 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a delivery counter in the kitchen scene.
+public class DeliveryCounter : BaseCounter
+{
+    // Singleton instance of the delivery counter.
+    public static DeliveryCounter Instance { get; private set; }
+
+    // Awake method called when the object is initialized.
+    private void Awake()
+    {
+        // Set the singleton instance to this instance of the delivery counter.
+        Instance = this;
+    }
+
+    // Override method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if the player is carrying a kitchen object.
+        if (player.HasKitchenObject())
+        {
+            // Player is carrying a kitchen object.
+            // Check if the player is holding a plate.
+            if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+            {
+                // Player is holding a plate.
+                // Deliver the recipe on the plate to the delivery manager.
+                DeliveryManager.Instance.DeliverRecipe(plateKitchenObject);
+
+                // Destroy the kitchen object carried by the player.
+                player.GetKitchenObject().DestroySelf();
+            }
+        }
+    }
+}
 
 
 ```
@@ -1574,18 +1933,82 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
+// This class represents a counter where plates spawn in the kitchen scene.
+public class PlatesCounter : BaseCounter
+{
+    // Event triggered when a plate is spawned on this counter.
+    public event EventHandler OnPlateSpawned;
 
-```
-</details>
-<hr>
+    // Event triggered when a plate is removed from this counter.
+    public event EventHandler OnPlateRemoved;
 
-### <h3>StoveCounter.cs</h3>
+    // ScriptableObject representing the plate kitchen object.
+    [SerializeField] private KitchenObjectSO plateKitchenObjectSO;
 
-<details>
-<summary>Click to expand code</summary>
-    
-```csharp
+    // Timer for spawning plates.
+    private float spawnPlateTimer;
+
+    // Maximum time between plate spawns.
+    private float spawnPlateTimerMax = 4f;
+
+    // Number of plates spawned.
+    private int platesSpawnedAmount;
+
+    // Maximum number of plates that can be spawned.
+    private int platesSpawnedAmountMax = 4;
+
+    // Update method called every frame.
+    private void Update()
+    {
+        // Increment the spawn plate timer.
+        spawnPlateTimer += Time.deltaTime;
+
+        // Check if it's time to spawn a plate.
+        if (spawnPlateTimer > spawnPlateTimerMax)
+        {
+            // Reset the spawn plate timer.
+            spawnPlateTimer = 0f;
+
+            // Check if the game is currently playing and there's still space for plates.
+            if (KitchenGameManager.Instance.IsGamePlaying() && platesSpawnedAmount < platesSpawnedAmountMax)
+            {
+                // Increment the number of plates spawned.
+                platesSpawnedAmount++;
+
+                // Trigger the event indicating a plate has been spawned.
+                OnPlateSpawned?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    // Override method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if the player is not carrying any kitchen object.
+        if (!player.HasKitchenObject())
+        {
+            // Player is empty-handed.
+            // Check if there's at least one plate on this counter.
+            if (platesSpawnedAmount > 0)
+            {
+                // There's at least one plate on this counter.
+                // Decrement the number of plates spawned.
+                platesSpawnedAmount--;
+
+                // Spawn a plate and assign it to the player.
+                KitchenObject.SpawnKitchenObject(plateKitchenObjectSO, player);
+
+                // Trigger the event indicating a plate has been removed.
+                OnPlateRemoved?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+}
 
 
 ```
@@ -1598,6 +2021,39 @@ public class ProgressBarUI : MonoBehaviour
 <summary>Click to expand code</summary>
     
 ```csharp
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+// This class represents a trash counter in the kitchen scene.
+public class TrashCounter : BaseCounter
+{
+    // Event triggered when any object is trashed.
+    public static event EventHandler OnAnyObjectTrashed;
+
+    // Method to reset static data of the class.
+    new public static void ResetStaticData()
+    {
+        // Reset the event handler for trashing objects.
+        OnAnyObjectTrashed = null;
+    }
+
+    // Method to handle interaction with the player.
+    public override void Interact(Player player)
+    {
+        // Check if the player is carrying a kitchen object.
+        if (player.HasKitchenObject())
+        {
+            // Player is carrying a kitchen object.
+            // Destroy the kitchen object carried by the player.
+            player.GetKitchenObject().DestroySelf();
+
+            // Trigger the event for trashing an object.
+            OnAnyObjectTrashed?.Invoke(this, EventArgs.Empty);
+        }
+    }
+}
 
 
 ```
