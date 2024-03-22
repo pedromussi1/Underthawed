@@ -1506,88 +1506,100 @@ public class ProgressBarUI : MonoBehaviour
 </details>
 <hr>
 
-### <h3>TutorialUI.cs</h3>
+<h2>Counters</h2>
+
+### <h3>BaseCounter.cs</h3>
 
 <details>
 <summary>Click to expand code</summary>
     
 ```csharp
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
 
-public class TutorialUI : MonoBehaviour
-{
-    // Serialized fields accessible in the Unity Inspector
-    [SerializeField] private TextMeshProUGUI keyMoveUpText;         // Text for displaying key binding for moving up
-    [SerializeField] private TextMeshProUGUI keyMoveDownText;       // Text for displaying key binding for moving down
-    [SerializeField] private TextMeshProUGUI keyMoveLeftText;       // Text for displaying key binding for moving left
-    [SerializeField] private TextMeshProUGUI keyMoveRightText;      // Text for displaying key binding for moving right
-    [SerializeField] private TextMeshProUGUI keyInteractText;       // Text for displaying key binding for interact
-    [SerializeField] private TextMeshProUGUI keyInteractAltText;    // Text for displaying key binding for alternate interact
-    [SerializeField] private TextMeshProUGUI keyPauseText;          // Text for displaying key binding for pause
-
-    // Called before the first frame update
-    private void Start()
-    {
-        // Subscribe to the event triggered when key bindings are rebound
-        GameInput.Instance.OnBindingRebind += GameInput_OnBindingRebind;
-
-        // Subscribe to the event triggered when the game state changes
-        KitchenGameManager.Instance.OnStateChanged += KitchenGameManager_OnStateChanged;
-
-        // Update the visual representation of key bindings
-        UpdateVisual();
-
-        // Show the tutorial UI initially
-        Show();
-    }
-
-    // Event handler for the game state change event
-    private void KitchenGameManager_OnStateChanged(object sender, System.EventArgs e)
-    {
-        // If the countdown to start is active, hide the tutorial UI
-        if (KitchenGameManager.Instance.IsCountdowntoStartActive())
-        {
-            Hide();
-        }
-    }
-
-    // Event handler for the key binding rebind event
-    private void GameInput_OnBindingRebind(object sender, System.EventArgs e)
-    {
-        // Update the visual representation of key bindings
-        UpdateVisual();
-    }
-
-    // Method to update the visual representation of key bindings
-    private void UpdateVisual()
-    {
-        // Set the text for each key binding based on the current bindings
-        keyMoveUpText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Up);
-        keyMoveDownText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Down);
-        keyMoveLeftText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Left);
-        keyMoveRightText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Move_Right);
-        keyInteractText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Interact);
-        keyInteractAltText.text = GameInput.Instance.GetBindingText(GameInput.Binding.InteractAlternate);
-        keyPauseText.text = GameInput.Instance.GetBindingText(GameInput.Binding.Pause);
-    }
-
-    // Method to show the tutorial UI
-    private void Show()
-    {
-        gameObject.SetActive(true);  // Activate the tutorial UI GameObject
-    }
-
-    // Method to hide the tutorial UI
-    private void Hide()
-    {
-        gameObject.SetActive(false);  // Deactivate the tutorial UI GameObject
-    }
-}
 
 ```
 </details>
 <hr>
 
+### <h3>ClearCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>ContainerCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>CuttingCorner.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>DeliveryCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>PlatesCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>StoveCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
+
+### <h3>TrashCounter.cs</h3>
+
+<details>
+<summary>Click to expand code</summary>
+    
+```csharp
+
+
+```
+</details>
+<hr>
