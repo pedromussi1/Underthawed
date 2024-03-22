@@ -38,6 +38,7 @@ GameInput.cs:
 Manages player input bindings and interaction actions.
 Allows rebinding of input actions such as movement, interaction, and pausing.
 Handles input events and triggers corresponding actions in the game.
+
 Each of these scripts plays a crucial role in different aspects of the game, such as player control, game state management, object interactions, audio feedback, and input handling. Together, they create an immersive and interactive kitchen environment where players can engage in various activities such as cooking, delivering recipes, and managing kitchen operations. By working together, these scripts provide a seamless and enjoyable gameplay experience for the player.</p>
 
 
@@ -1013,7 +1014,9 @@ Manages the UI for displaying a progress bar. Updates the UI based on changes to
 
 TutorialUI.cs:
 
-Controls the UI for displaying tutorial information. Displays key bindings for player actions and hides during certain game states, like when the game is about to start. In summary, these code files work together to manage different aspects of the game's user interface, including delivery results, pause menu, options menu, plate icons, progress bar, and tutorial information. They interact with other scripts and game managers to update UI elements based on game events and player actions.</p>
+Controls the UI for displaying tutorial information. Displays key bindings for player actions and hides during certain game states, like when the game is about to start. 
+
+In summary, these code files work together to manage different aspects of the game's user interface, including delivery results, pause menu, options menu, plate icons, progress bar, and tutorial information. They interact with other scripts and game managers to update UI elements based on game events and player actions.</p>
 
 ### <h3>DeliveryResultUI.cs</h3>
 
