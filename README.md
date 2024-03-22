@@ -29,7 +29,7 @@
 </ul>
 
 <h2>
-<a href="https://github.com/pedromussi1/PuzzleSolver/blob/main/READCODE.md">Code Breakdown Here!</a>
+<a href="https://github.com/pedromussi1/Underthawed/blob/main/READCODE.md">Code Breakdown Here!</a>
 </h2>
 
 
